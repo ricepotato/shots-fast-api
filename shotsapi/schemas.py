@@ -19,14 +19,14 @@ class ShotBase(BaseModel):
 
 
 class Blob(BlobBase):
-    id: int
+    id: int = None
 
     class Config:
         orm_mode = True
 
 
 class Shot(ShotBase):
-    id: int
+    id: int = None
     images: list[Blob] = []
 
     class Config:

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, HttpUrl
+from fastapi.middleware.cors import CORSMiddleware
 
 
 class Blob(BaseModel):
@@ -20,6 +21,20 @@ class ShotResponse(BaseModel):
 
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 "https://storage.googleapis.com/yazzal/6ba6986c98a7cc15a96d7b527fdb112219c21207e932846dcd5b719d368446fd"
 "https://storage.googleapis.com/yazzal/7beb1a2c56d977fac450f8a26e69b4e496ec2b5a0a093aee07ee18429bd78f0e"

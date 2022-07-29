@@ -1,14 +1,15 @@
-from enum import unique
-from sqlalchemy import Boolean, Column, Integer, SmallInteger, String
+from sqlalchemy import Column, Integer, SmallInteger, String, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-from .database import Base
+Base = declarative_base()
 
 
 class Blob(Base):
     __tablename__ = "blobs"
 
     id = Column(Integer, primary_key=True)
+    shots_id = Column(Integer, ForeignKey("shots.id"))
     name = Column(String, unique=True)
     url = Column(String)
     order = Column(SmallInteger, index=True)
@@ -18,7 +19,7 @@ class Blob(Base):
 
 
 class Shots(Base):
-    __tablename__ = "blobs"
+    __tablename__ = "shots"
 
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True)
