@@ -1,8 +1,22 @@
-from sqlalchemy import Column, Integer, SmallInteger, String, ForeignKey
+from sqlalchemy import Column, Integer, SmallInteger, String, ForeignKey, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
+
+association_table = Table(
+    "shot_tag",
+    Base.metadata,
+    Column("shots_id", ForeignKey("shots.id")),
+    Column("tags_id", ForeignKey("blobs.id")),
+)
+
+
+class Tags(Base):
+    __tablename__ = "tags"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
 
 
 class Blob(Base):
@@ -23,5 +37,6 @@ class Shots(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True)
+    custom = Column(String, index=True)
 
     images = relationship("Blob", back_populates="owner")
