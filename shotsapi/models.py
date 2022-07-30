@@ -28,29 +28,30 @@ class Tags(Base):
     name = Column(String(50), unique=True)
 
 
-class Blob(Base):
+class TimestamedTable(Base):
+    time_created = Column(DateTime, server_default=func.now())
+    time_updated = Column(DateTime, onupdate=func.now())
+
+
+class Blob(TimestamedTable):
     __tablename__ = "blobs"
 
     id = Column(Integer, primary_key=True)
     shots_id = Column(Integer, ForeignKey("shots.id"))
-    name = Column(String(50), unique=True)
+    name = Column(String(100), unique=True)
     url = Column(String(1000))
     order = Column(SmallInteger, index=True)
     type = Column(String(20), index=True)
-    time_created = Column(DateTime, server_default=func.now())
-    time_updated = Column(DateTime, onupdate=func.now())
 
     owner = relationship("Shots", back_populates="images")
 
 
-class Shots(Base):
+class Shots(TimestamedTable):
     __tablename__ = "shots"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(50), unique=True)
-    custom = Column(String, index=True)
-    status = Column(String, default=None)
-    time_created = Column(DateTime, server_default=func.now())
-    time_updated = Column(DateTime, onupdate=func.now())
+    name = Column(String(100), unique=True)
+    custom = Column(String(50), index=True)
+    status = Column(String(20), default=None)
 
     images = relationship("Blob", back_populates="owner")
