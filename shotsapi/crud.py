@@ -39,3 +39,7 @@ def get_blob(db: Session, blob_id: int) -> BlobModel:
 
 def get_shot(db: Session, shot_id: int) -> ShotsModel:
     return db.query(ShotsModel).filter(ShotsModel.id == shot_id).one()
+
+
+def get_shot_list(db: Session, page: int, per_page: int) -> list[ShotsModel]:
+    return db.query(ShotsModel).offset((page - 1) * per_page).limit(per_page).all()

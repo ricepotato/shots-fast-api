@@ -2,7 +2,7 @@ import pydantic
 import pytest
 from faker import Faker
 from sqlalchemy.orm import Session
-from shotsapi.crud import create_blob, create_shot, get_blob, get_shot
+from shotsapi.crud import create_blob, create_shot, get_blob, get_shot, get_shot_list
 from shotsapi.schemas import Blob, BlobType, Shot
 
 faker = Faker()
@@ -62,3 +62,23 @@ def test_get_shot(sqlite_session_local: Session):
     assert shot.name == "shot1"
     assert "blob_name1" in [blob.name for blob in shot.images]
     assert "blob_name2" in [blob.name for blob in shot.images]
+
+
+def test_get_shot_list(sqlite_session_local: Session):
+    # given
+    new_shot1 = Shot(name="shot1")
+    new_shot2 = Shot(name="shot2")
+
+    create_shot(sqlite_session_local, new_shot1)
+    create_shot(sqlite_session_local, new_shot2)
+
+    # when
+    result1 = get_shot_list(sqlite_session_local, 1, 10)
+    result2 = get_shot_list(sqlite_session_local, 1, 1)
+    result3 = get_shot_list(sqlite_session_local, 2, 1)
+
+    # then
+    assert result1[0].name == new_shot1.name
+    assert result1[1].name == new_shot2.name
+    assert result2[0].name == new_shot1.name
+    assert result3[0].name == new_shot2.name
