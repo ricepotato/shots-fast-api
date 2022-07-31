@@ -5,12 +5,7 @@ from .schemas import Blob, Shot
 
 
 def create_blob(db: Session, blob: Blob) -> int:
-    new_blob = BlobModel(
-        name=blob.name,
-        url=blob.url,
-        order=blob.order,
-        type=blob.type,
-    )
+    new_blob = BlobModel(name=blob.name, url=blob.url, order=blob.order, type=blob.type)
     db.add(new_blob)
     db.commit()
     db.flush()
@@ -20,6 +15,8 @@ def create_blob(db: Session, blob: Blob) -> int:
 def create_shot(db: Session, shot: Shot):
     new_shot = ShotsModel(
         name=shot.name,
+        status=shot.status,
+        description=shot.description,
         images=[
             BlobModel(
                 name=blob.name,

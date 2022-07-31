@@ -7,15 +7,16 @@ class BlobType(str, Enum):
     thumbnail = "thumbnail"
 
 
+class ShotStatus(str, Enum):
+    present = "present"
+    absent = "absent"
+
+
 class BlobBase(BaseModel):
     name: str
     url: str
     type: BlobType
     order: int = 0
-
-
-class ShotBase(BaseModel):
-    name: str
 
 
 class Blob(BlobBase):
@@ -25,9 +26,22 @@ class Blob(BlobBase):
         orm_mode = True
 
 
+class ShotBase(BaseModel):
+    name: str
+    custom: str = None
+    status: ShotStatus = None
+    description: str = None
+
+
 class Shot(ShotBase):
     id: int = None
     images: list[Blob] = []
 
     class Config:
         orm_mode = True
+
+
+class ShotsResponse(BaseModel):
+    page: int
+    per_page: int
+    data: list[Shot]
