@@ -15,7 +15,7 @@ def remove_if_exists(path: str):
 def sqlite_db():
     sqlite_db_filepath = "db.sqlite"
     remove_if_exists(sqlite_db_filepath)
-    engine = create_engine(f"sqlite:///{sqlite_db_filepath}")
+    engine = create_engine(f"sqlite:///{sqlite_db_filepath}", echo=True)
     Base.metadata.create_all(bind=engine)
 
     yield engine

@@ -1,3 +1,5 @@
+from email.policy import default
+from typing import List
 from sqlalchemy import (
     Column,
     Integer,
@@ -12,12 +14,20 @@ from sqlalchemy.sql import func
 
 Base = declarative_base()
 
-association_table = Table(
+shot_tag_table = Table(
     "shot_tag",
     Base.metadata,
-    Column("shots_id", ForeignKey("shots.id")),
-    Column("tags_id", ForeignKey("blobs.id")),
+    Column("shots_id", ForeignKey("shot.id")),
+    Column("tags_id", ForeignKey("tag.id")),
 )
+
+
+# shot_blob_table = Table(
+#     "shot_blob",
+#     Base.metadata,
+#     Column("shots_id", ForeignKey("shot.id")),
+#     Column("blob_id", ForeignKey("blob.id")),
+# )
 
 
 class TimestamedTable:
@@ -30,28 +40,39 @@ class TimestamedTable:
         return Column(DateTime, onupdate=func.now())
 
 
-class Tags(Base):
-    __tablename__ = "tags"
+class Tag(Base):
+    __tablename__ = "tag"
 
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True)
 
 
+class ShotBlob(Base):
+    __tablename__ = "shot_blob"
+
+    shots_id = Column(ForeignKey("shot.id"), primary_key=True)
+    blob_id = Column(ForeignKey("blob.id"), primary_key=True)
+    order = Column(Integer, index=True, default=None)
+    type = Column(String(20), index=True, default=None)
+
+    shot = relationship("Shot", back_populates="blobs")
+    blob = relationship("Blob", back_populates="shots")
+
+
 class Blob(Base, TimestamedTable):
-    __tablename__ = "blobs"
+    __tablename__ = "blob"
 
     id = Column(Integer, primary_key=True)
-    shots_id = Column(Integer, ForeignKey("shots.id"))
     name = Column(String(100), unique=True)
     url = Column(String(1000))
-    order = Column(SmallInteger, index=True)
+    sha256 = Column(String(64), unique=True)
     type = Column(String(20), index=True)
 
-    owner = relationship("Shots", back_populates="images")
+    shots = relationship("ShotBlob", back_populates="blob")
 
 
-class Shots(Base, TimestamedTable):
-    __tablename__ = "shots"
+class Shot(Base, TimestamedTable):
+    __tablename__ = "shot"
 
     id = Column(Integer, primary_key=True)
     name = Column(String(100), unique=True)
@@ -59,4 +80,4 @@ class Shots(Base, TimestamedTable):
     status = Column(String(20), default=None)
     description = Column(String(100), default=None)
 
-    images = relationship("Blob", back_populates="owner")
+    blobs = relationship("ShotBlob", back_populates="shot")

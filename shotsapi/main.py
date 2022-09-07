@@ -1,6 +1,13 @@
-from fastapi import FastAPI
-from pydantic import BaseModel, HttpUrl
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, HttpUrl
+from sqlalchemy import orm
+
+import database
+import crud
+
+engine = database.create_engine()
+SessionLocal = database.session_local(engine)
 
 
 class Blob(BaseModel):
@@ -8,19 +15,27 @@ class Blob(BaseModel):
     url: HttpUrl
 
 
-class Shot(BaseModel):
+class ShotResponse(BaseModel):
     name: str
     images: list[Blob]
-    thumbnails: list[Blob]
 
 
-class ShotResponse(BaseModel):
+class ShotsResponse(BaseModel):
     page: int = 1
     limit: int = 10
-    data: list[Shot] = []
+    data: list[ShotResponse] = []
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 app = FastAPI()
+
 
 origins = [
     "http://localhost",
@@ -36,38 +51,22 @@ app.add_middleware(
 )
 
 
-"https://storage.googleapis.com/yazzal/6ba6986c98a7cc15a96d7b527fdb112219c21207e932846dcd5b719d368446fd"
-"https://storage.googleapis.com/yazzal/7beb1a2c56d977fac450f8a26e69b4e496ec2b5a0a093aee07ee18429bd78f0e"
-
-test_shot = Shot(
-    name="shot1",
-    images=[
-        Blob(
-            name="6ba6986c98a7cc15a96d7b527fdb112219c21207e932846dcd5b719d368446fd",
-            url="https://storage.googleapis.com/yazzal/6ba6986c98a7cc15a96d7b527fdb112219c21207e932846dcd5b719d368446fd",
-        )
-    ],
-    thumbnails=[
-        Blob(
-            name="7beb1a2c56d977fac450f8a26e69b4e496ec2b5a0a093aee07ee18429bd78f0e",
-            url="https://storage.googleapis.com/yazzal/7beb1a2c56d977fac450f8a26e69b4e496ec2b5a0a093aee07ee18429bd78f0e",
-        ),
-    ],
-)
-
-data = [test_shot]
-
-
 @app.get("/")
 async def root():
     return {"message": "hello"}
 
 
-@app.get("/shots/", response_model=ShotResponse)
-async def get_shots():
-    return ShotResponse(page=1, limit=10, data=data)
+# @app.get("/shots/", response_model=ShotsResponse)
+# async def get_shots():
+#     return ShotsResponse(page=1, limit=10, data=data)
 
 
-@app.get("/shots/{name}")
-async def get_shot(name: str):
-    return test_shot
+@app.get("/shots/{name}", response_model=ShotResponse)
+async def get_shot(name: str, db: orm.Session = Depends(get_db)):
+    shot = crud.get_shot_by_name(db, name)
+    return ShotResponse(name=shot.name, images=shot.images)
+
+
+@app.post("/shots/")
+async def create_shot(shot: ShotResponse):
+    return shot

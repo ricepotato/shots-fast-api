@@ -16,7 +16,6 @@ class BlobBase(BaseModel):
     name: str
     url: str
     type: BlobType
-    order: int = 0
 
 
 class Blob(BlobBase):
@@ -36,6 +35,7 @@ class ShotBase(BaseModel):
 class Shot(ShotBase):
     id: int = None
     images: list[Blob] = []
+    thumbnailes: list[Blob] = []
 
     class Config:
         orm_mode = True

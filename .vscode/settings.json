@@ -4,5 +4,10 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.analysis.extraPaths": ["shotsapi"]
+    "python.analysis.extraPaths": ["shotsapi"],
+    "python.analysis.autoSearchPaths": true,
+    "editor.formatOnSave": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackPath": "black",
+    "python.envFile": "${workspaceFolder}/.env"
 }
