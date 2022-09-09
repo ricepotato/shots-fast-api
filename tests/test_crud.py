@@ -41,7 +41,7 @@ def test_create_shot(sqlite_session_local: Session):
     new_blob3 = Blob(name="blob_name3", url=faker.url(), type=BlobType.main)
     new_shot = Shot(
         name="shot1",
-        images=[new_blob1, new_blob2],
+        images=[new_blob2, new_blob1],
         thumbnailes=[
             new_blob3,
         ],
@@ -50,9 +50,7 @@ def test_create_shot(sqlite_session_local: Session):
     assert shot_id
 
     shot = crud.get_shot(sqlite_session_local, shot_id)
-
-    # assert shot.images
-    # assert shot.images[0].name == new_blob1.name
+    assert shot.blobs[0].blob.name == "blob_name2"
 
 
 def test_get_blob(sqlite_session_local: Session):

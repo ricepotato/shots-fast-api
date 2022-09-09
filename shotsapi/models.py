@@ -10,7 +10,7 @@ from sqlalchemy import (
     DateTime,
 )
 from sqlalchemy.orm import relationship, declarative_base, declared_attr
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, asc
 
 Base = declarative_base()
 
@@ -80,4 +80,6 @@ class Shot(Base, TimestamedTable):
     status = Column(String(20), default=None)
     description = Column(String(100), default=None)
 
-    blobs = relationship("ShotBlob", back_populates="shot")
+    blobs = relationship(
+        "ShotBlob", back_populates="shot", order_by=lambda: asc(ShotBlob.order)
+    )
